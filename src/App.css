@@ -1,0 +1,317 @@
+.app {
+  --save-bar-height: 4.5rem;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+/* ---------- ヘッダー ---------- */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: calc(0.5rem + env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.5rem
+    max(1rem, env(safe-area-inset-left));
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25em;
+}
+
+.count {
+  color: var(--text-sub);
+  font-size: 0.85em;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.75rem max(1rem, env(safe-area-inset-left)) 0;
+  padding: 0.6rem 0.4rem 0.6rem 0.8rem;
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 0.85em;
+}
+
+.notice p {
+  margin: 0;
+  flex: 1;
+}
+
+/* ---------- 一覧 ---------- */
+
+.app-main {
+  flex: 1;
+  padding: 0 max(1rem, env(safe-area-inset-right)) calc(var(--save-bar-height) + 5rem + env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+.load-error {
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: var(--danger);
+  color: #fff;
+}
+
+.empty {
+  margin-top: 3rem;
+  color: var(--text-sub);
+  text-align: center;
+}
+
+.empty p {
+  margin: 0.25em 0;
+}
+
+.clip-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.clip {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border);
+  /* 画面外の項目の描画を省き、1000 件でもスクロールを軽く保つ */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 5rem;
+}
+
+.clip-body {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.clip-body:active {
+  opacity: 0.6;
+}
+
+.clip-text {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.clip-text.clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.clip-meta {
+  display: block;
+  margin-top: 0.25em;
+  color: var(--text-sub);
+  font-size: 0.8em;
+}
+
+.clip-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.icon-button,
+.text-button {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  color: var(--text-sub);
+  font: inherit;
+}
+
+.icon-button {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.text-button {
+  color: var(--accent);
+  font-size: 0.8em;
+}
+
+.footnote {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.75em;
+}
+
+.footnote a {
+  color: var(--text-sub);
+}
+
+/* ---------- 保存ボタン ---------- */
+
+.save-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  padding: 0.75rem max(1rem, env(safe-area-inset-right)) calc(0.75rem + env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+.save-button {
+  display: block;
+  width: 100%;
+  max-width: 38rem;
+  min-height: 3.5rem;
+  margin: 0 auto;
+  border: none;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+}
+
+.save-button:disabled {
+  opacity: 0.7;
+}
+
+/* ---------- 通知 ---------- */
+
+.toast-region {
+  position: fixed;
+  right: 0;
+  bottom: calc(var(--save-bar-height) + env(safe-area-inset-bottom) + 0.5rem);
+  left: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  padding: 0 max(1rem, env(safe-area-inset-right)) 0 max(1rem, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  max-width: 38rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.9rem;
+  border-radius: 12px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.9em;
+  pointer-events: auto;
+}
+
+.toast-error {
+  background: var(--danger);
+  color: #fff;
+}
+
+.toast-text {
+  flex: 1;
+  margin: 0.5em 0;
+}
+
+.toast-action,
+.toast-close {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.toast-action {
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ---------- 操作シート ---------- */
+
+.sheet {
+  width: 100%;
+  max-width: 40rem;
+  margin: auto auto 0;
+  padding: 0;
+  border: none;
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.sheet::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.sheet-content {
+  padding: 1rem max(1rem, env(safe-area-inset-right)) calc(1rem + env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+.sheet-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  margin: 0 0 0.75rem;
+  color: var(--text-sub);
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sheet-button {
+  display: block;
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--accent);
+  font: inherit;
+}
+
+.sheet-button.danger {
+  color: var(--danger);
+}
+
+.sheet-button.secondary {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
