@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -8,6 +9,15 @@ const REPO_NAME = 'clipboard-history-pwa'
 
 export default defineConfig({
   base: `/${REPO_NAME}/`,
+  build: {
+    rolldownOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        // Phase 0 の検証ページ。IndexedDB の長期残存を確認し終えるまで同一オリジンに残す
+        verify: fileURLToPath(new URL('./verify.html', import.meta.url)),
+      },
+    },
+  },
   define: {
     // 実機で「今どのビルドを見ているか」を確認するため (Service Worker のキャッシュ対策)
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),

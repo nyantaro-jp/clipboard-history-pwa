@@ -1,10 +1,6 @@
-export type DisplayMode = 'standalone' | 'browser'
+import { getDisplayMode } from '../lib/displayMode'
 
-/** ホーム画面から起動した PWA か、Safari のタブかを判定する */
-export function getDisplayMode(): DisplayMode {
-  if (navigator.standalone === true) return 'standalone'
-  return window.matchMedia('(display-mode: standalone)').matches ? 'standalone' : 'browser'
-}
+export { getDisplayMode, type DisplayMode } from '../lib/displayMode'
 
 export type EnvironmentReport = Array<[label: string, value: string]>
 
