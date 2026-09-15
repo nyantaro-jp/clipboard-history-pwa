@@ -2,9 +2,27 @@
 
 iOS にはクリップボードの履歴機能がない。コピーしたテキストをワンタップで端末内に保存し、後から分類・検索して取り出せる PWA。
 
-> **現在の状態: Phase 0（実機検証）**
-> 実機でクリップボード API の挙動を確認し、設計に反映した。IndexedDB が数日後も残っているかは確認待ち。
-> 現在デプロイされているのは検証用ページのみ。
+**https://nyantaro-jp.github.io/clipboard-history-pwa/**
+
+> **現在の状態: Phase 1（保存と一覧）**
+> Phase 0 の実機検証のうち、IndexedDB が数日後も残っているかは確認待ち。
+> 検証ページは [verify.html](https://nyantaro-jp.github.io/clipboard-history-pwa/verify.html) に残している。
+
+## 使い方
+
+1. iPhone の Safari で上の URL を開く
+2. 共有ボタン →「ホーム画面に追加」→「追加」
+3. ホーム画面のアイコンから起動する（ブラウザのタブのままだと履歴が自動で消えることがある）
+4. 他のアプリでテキストをコピーし、このアプリの「クリップボードから保存」をタップ → 表示された「ペースト」をタップ
+5. 履歴の項目をタップするとクリップボードに書き戻される。長押しか「⋯」でメニューを開き、削除できる
+
+## 機能
+
+| Phase | 内容 | 状態 |
+|---|---|---|
+| 1 | 保存ボタン（画面下部に固定）、新しい順の一覧、タップで書き戻し、長押しメニューで削除（元に戻す付き）、直前と同じ内容なら日時だけ更新 | 実装済み |
+| 2 | カテゴリの自動推定と手動変更、タグ、絞り込み | 未着手 |
+| 3 | 部分一致検索、ピン留め、保存件数の上限、JSON エクスポート | 未着手 |
 
 ## 解決したい課題
 
@@ -84,16 +102,36 @@ iOS にはクリップボードの履歴機能がない。コピーしたテキ�
 | UI | React + TypeScript | 型でデータモデルを固定し、状態を hooks だけで管理できる規模に収める |
 | 状態管理 | React の state / hooks のみ | 1画面で完結し、共有する状態が少ないため外部ライブラリは不要 |
 | 永続化 | IndexedDB | 1000 件規模のテキストとインデックス検索が必要で、localStorage では容量・同期 API の点で不向き |
+| IndexedDB ラッパー | [idb](https://github.com/jakearchibald/idb) | 約 1KB。ストアとインデックスの型をスキーマで固定でき、トランザクション完了を `tx.done` で待てる。自作だと完了・中断イベントの扱いを自分で検証し続ける必要がある |
+| テスト | Vitest + fake-indexeddb | Vite の設定を共有でき、重複判定や DB 操作を Node 上で検証できる |
 | PWA | vite-plugin-pwa | Service Worker とマニフェスト、iOS 向け PNG アイコンの生成をまとめて扱える |
-| 配信 | GitHub Pages + GitHub Actions | HTTPS が標準で、`main` への push で自動デプロイできる |
+| 配信 | GitHub Pages + GitHub Actions | HTTPS が標準で、`main` への push でテスト・ビルド・デプロイまで自動で行える |
 
-IndexedDB のラッパー（自作か `idb` か）は Phase 1 で決め、理由をコミットメッセージに残す。
+## 実装上の工夫
+
+- **読み取りはタップ直後に呼ぶ:** `readText()` はクリックハンドラの先頭で、他の処理より前に呼ぶ（[`readClipboard.ts`](src/clips/readClipboard.ts)）。テストでも、呼び出し前に `await` が挟まっていないことを確認している
+- **重複判定と書き込みを1つのトランザクションで行う:** 連続タップしても、判定から書き込みまでの間に別の保存が割り込まない（[`clipsDb.ts`](src/clips/clipsDb.ts)）
+- **失敗を黙って握りつぶさない:** クリップボードの拒否・空、容量不足、ストレージにアクセスできない場合を分けて画面に表示する。エラー表示は自動では消さない
+- **1000 件でもスクロールを軽く保つ:** 仮想スクロールのライブラリは入れず、CSS の `content-visibility: auto` で画面外の項目の描画を省いている。全文ボタンを出すかどうかも、要素の高さを測らず文字数と改行数で判定し、レイアウト計算を増やさない
+
+## ディレクトリ構成
+
+```
+src/
+  App.tsx              1画面の組み立てと、保存・コピー・削除の操作
+  clips/               履歴のデータモデル・IndexedDB・クリップボード読み取り（UI に依存しない）
+  components/          一覧の項目、操作シート、通知
+  lib/                 表示モード判定、永続ストレージ、日時表示、長押し検出
+  phase0/              Phase 0 の検証ページ（verify.html）
+docs/phase0/           実機検証の生ログ
+```
 
 ## 開発
 
 ```bash
 npm install
 npm run dev      # http://localhost:5173/clipboard-history-pwa/
+npm test
 npm run build
 npm run preview  # ビルド結果を Service Worker 込みで確認
 ```
