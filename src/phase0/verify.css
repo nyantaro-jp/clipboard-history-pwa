@@ -1,0 +1,117 @@
+.verify {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem max(1rem, env(safe-area-inset-right)) calc(2rem + env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+.verify header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: env(safe-area-inset-top);
+}
+
+.verify h1 {
+  font-size: 1.4em;
+  margin: 0.5em 0;
+}
+
+.verify h2 {
+  font-size: 1.1em;
+  margin: 0 0 0.25em;
+}
+
+.verify section {
+  margin-top: 1.25rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.verify .badge {
+  margin: 0;
+  padding: 0.2em 0.6em;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.verify .hint {
+  margin: 0 0 0.5em;
+  color: var(--text-sub);
+  font-size: 0.9em;
+}
+
+.verify button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+}
+
+.verify button:disabled {
+  opacity: 0.5;
+}
+
+.verify .actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.verify .danger {
+  background: var(--danger);
+}
+
+.verify .error {
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: var(--danger);
+  color: #fff;
+}
+
+.verify dl {
+  margin: 0;
+  font-size: 0.85em;
+}
+
+.verify dl div {
+  padding: 0.3em 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.verify dt {
+  color: var(--text-sub);
+}
+
+.verify dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.verify .records {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85em;
+}
+
+.verify .records li {
+  padding: 0.4em 0;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+.verify .meta {
+  display: block;
+  color: var(--text-sub);
+  font-size: 0.85em;
+}
