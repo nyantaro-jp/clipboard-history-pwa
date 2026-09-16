@@ -18,7 +18,7 @@ const byNewest = (a: ClipItem, b: ClipItem) => b.updatedAt - a.updatedAt
 
 /**
  * 履歴の一覧と操作をまとめた hook。
- * IndexedDB を正とし、書き込みが成功してから画面の state を更新する。
+ * IndexedDB を正とし、原則として書き込みが成功してから画面の state を更新する（update のみ例外、理由は update に記載）。
  * 書き込みに失敗した場合は例外をそのまま投げ、呼び出し側で理由を表示する。
  */
 export function useClips() {
@@ -56,11 +56,31 @@ export function useClips() {
     setItems((prev) => prev.filter((item) => item.id !== target.id))
   }, [])
 
+  /**
+   * カテゴリやタグの変更。並び順を変えないよう updatedAt は更新しない。
+   * タグを続けて追加したときに古い内容を元に次の変更を作らないよう、画面を先に更新してから書き込む。
+   * 書き込みに失敗したら、正である IndexedDB から読み直して画面を戻す。
+   */
+  const update = useCallback(async (next: ClipItem): Promise<void> => {
+    setItems((prev) => prev.map((item) => (item.id === next.id ? next : item)))
+    try {
+      await putClip(await getDb(), next)
+    } catch (error) {
+      getDb()
+        .then(getAllClips)
+        .then(setItems)
+        .catch(() => {
+          // 読み直しにも失敗した場合は、呼び出し側に返すエラー表示に任せる
+        })
+      throw error
+    }
+  }, [])
+
   /** 削除の取り消し用。削除前の内容をそのまま書き戻す */
   const restore = useCallback(async (target: ClipItem): Promise<void> => {
     await putClip(await getDb(), target)
     setItems((prev) => [...prev.filter((item) => item.id !== target.id), target].sort(byNewest))
   }, [])
 
-  return { items, loading, loadError, saveText, remove, restore }
+  return { items, loading, loadError, saveText, update, remove, restore }
 }

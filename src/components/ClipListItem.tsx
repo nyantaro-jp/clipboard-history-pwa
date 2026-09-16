@@ -1,4 +1,5 @@
 import { memo, useState } from 'react'
+import { CATEGORY_LABELS } from '../clips/categories'
 import type { ClipItem } from '../clips/types'
 import { formatClipTime } from '../lib/formatTime'
 import { useLongPress } from '../lib/useLongPress'
@@ -35,6 +36,12 @@ export const ClipListItem = memo(function ClipListItem({ item, onCopy, onOpenMen
         <span className={expanded ? 'clip-text' : 'clip-text clamped'}>{item.text}</span>
         <span className="clip-meta">
           <time dateTime={new Date(item.updatedAt).toISOString()}>{formatClipTime(item.updatedAt)}</time>
+          <span className={`badge badge-${item.category}`}>{CATEGORY_LABELS[item.category]}</span>
+          {item.tags.map((tag) => (
+            <span key={tag} className="meta-tag">
+              #{tag}
+            </span>
+          ))}
           <span className="visually-hidden">。タップでコピー、長押しでメニュー</span>
         </span>
       </button>
