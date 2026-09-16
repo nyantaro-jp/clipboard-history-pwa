@@ -1,3 +1,4 @@
+import { classifyText } from './classify'
 import type { ClipItem } from './types'
 
 export type SaveOutcome =
@@ -16,6 +17,7 @@ export function decideSave(
   createId: () => string = () => crypto.randomUUID(),
 ): SaveOutcome {
   if (latest && latest.text === text) {
+    // カテゴリやタグは手動で変更されている可能性があるので、日時以外は触らない
     return { kind: 'touched', item: { ...latest, updatedAt: now } }
   }
   return {
@@ -23,8 +25,7 @@ export function decideSave(
     item: {
       id: createId(),
       text,
-      // カテゴリの自動判定は Phase 2 で実装する
-      category: 'text',
+      category: classifyText(text),
       tags: [],
       pinned: false,
       createdAt: now,

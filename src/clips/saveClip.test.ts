@@ -34,6 +34,10 @@ describe('decideSave', () => {
     expect(outcome).toEqual({ kind: 'touched', item: { ...existing, updatedAt: 5000 } })
   })
 
+  it('新規作成時はカテゴリを自動判定する', () => {
+    expect(decideSave('https://example.com', undefined, 5000).item.category).toBe('url')
+  })
+
   it('前後の空白や大文字小文字が違えば別の内容として新規作成する', () => {
     expect(decideSave('hello ', existing, 5000).kind).toBe('created')
     expect(decideSave('Hello', existing, 5000).kind).toBe('created')

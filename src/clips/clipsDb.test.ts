@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto'
+import { openDB } from 'idb'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { deleteClip, getAllClips, openClipsDb, putClip, saveClipText, type ClipsDb } from './clipsDb'
 import type { ClipItem } from './types'
@@ -46,5 +47,26 @@ describe('clipsDb', () => {
     await putClip(db, clip('a', 1))
     await deleteClip(db, 'a')
     expect(await getAllClips(db)).toEqual([])
+  })
+
+  it('v1 の DB を開くと、一律 text だったカテゴリを判定し直す', async () => {
+    const name = `test-${crypto.randomUUID()}`
+    const v1 = await openDB(name, 1, {
+      upgrade(raw) {
+        const store = raw.createObjectStore('clips', { keyPath: 'id' })
+        store.createIndex('createdAt', 'createdAt')
+        store.createIndex('updatedAt', 'updatedAt')
+        store.createIndex('category', 'category')
+      },
+    })
+    await v1.put('clips', { ...clip('url', 1), text: 'https://example.com' })
+    await v1.put('clips', { ...clip('memo', 2), text: 'ただのメモ' })
+    v1.close()
+
+    const upgraded = await openClipsDb(name)
+    const categories = Object.fromEntries((await getAllClips(upgraded)).map((c) => [c.id, c.category]))
+    upgraded.close()
+
+    expect(categories).toEqual({ url: 'url', memo: 'text' })
   })
 })

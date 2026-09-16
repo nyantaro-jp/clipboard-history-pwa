@@ -1,9 +1,10 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
+import { classifyText } from './classify'
 import { decideSave, type SaveOutcome } from './saveClip'
 import type { Category, ClipItem } from './types'
 
 const DB_NAME = 'clipboard-history'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 interface ClipsSchema extends DBSchema {
   clips: {
@@ -21,12 +22,28 @@ export type ClipsDb = IDBPDatabase<ClipsSchema>
 
 export function openClipsDb(name = DB_NAME): Promise<ClipsDb> {
   return openDB<ClipsSchema>(name, DB_VERSION, {
-    upgrade(db) {
-      const store = db.createObjectStore('clips', { keyPath: 'id' })
-      store.createIndex('createdAt', 'createdAt')
-      // 一覧の並び順と「直前の項目」の特定に使う
-      store.createIndex('updatedAt', 'updatedAt')
-      store.createIndex('category', 'category')
+    async upgrade(db, oldVersion, _newVersion, tx) {
+      if (oldVersion < 1) {
+        const store = db.createObjectStore('clips', { keyPath: 'id' })
+        store.createIndex('createdAt', 'createdAt')
+        // 一覧の並び順と「直前の項目」の特定に使う
+        store.createIndex('updatedAt', 'updatedAt')
+        store.createIndex('category', 'category')
+      }
+      if (oldVersion === 1) {
+        // v1（Phase 1）ではカテゴリを判定せず一律 text で保存していた。
+        // 手動変更の機能もなかったので、全件を判定し直しても利用者の設定は失われない
+        let cursor = await tx.objectStore('clips').openCursor()
+        while (cursor) {
+          const category = classifyText(cursor.value.text)
+          if (category !== cursor.value.category) await cursor.update({ ...cursor.value, category })
+          cursor = await cursor.continue()
+        }
+      }
+    },
+    // 新しいバージョンのアプリが別のタブで開かれたら接続を閉じ、アップグレードを妨げない
+    blocking(_currentVersion, _blockedVersion, event) {
+      ;(event.target as IDBDatabase).close()
     },
   })
 }
